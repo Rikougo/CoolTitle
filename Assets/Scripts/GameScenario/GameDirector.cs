@@ -1,7 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Cinemachine;
+using Dialog;
+using Dialog.Runtime;
 using GameScenario.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,6 +12,7 @@ using UnityEngine.Rendering;
 
 namespace GameScenario
 {
+    [RequireComponent(typeof(PlayerInput))]
     public class GameDirector : MonoBehaviour
     {
         public enum GameState
@@ -17,12 +21,15 @@ namespace GameScenario
             DIALOG,
             PAUSE
         }
-        
+
+        private PlayerInput m_input;
+        private DialogDirector m_dialogDirector;
+            
         private Player m_player;
         private Camera m_camera;
         private Volume m_globalVolume;
         
-        private List<TimerHolder> m_timers;
+        private Dictionary<int, TimerHolder> m_timers;
         
         public VolumeProfile defaultVolume;
         public VolumeProfile deathVolume;
@@ -41,9 +48,13 @@ namespace GameScenario
             }
         }
 
+        public PlayerInput Input => m_input;
+
         public void Awake()
         {
-            m_timers = new List<TimerHolder>();
+            m_timers = new Dictionary<int, TimerHolder>();
+            m_input = GetComponent<PlayerInput>();
+            m_dialogDirector = GetComponent<DialogDirector>();
         }
         
         public void Start()
@@ -57,12 +68,35 @@ namespace GameScenario
                 Debug.LogError("Couldn't find Player component in Scene.");
                 #if UNITY_EDITOR
                 UnityEditor.EditorApplication.isPlaying = false;
+                #else 
+                Application.Quit();
                 #endif
             }
-            
-            m_player.GetComponent<PlayerInput>().actions["Restart"].performed += (ctx) => ResurrectPlayer();
         }
-        
+
+        private void OnEnable()
+        {
+            m_input.actions["Restart"].performed += (ctx) => ResurrectPlayer();
+            m_input.actions["Interact"].performed += (ctx) =>
+            {
+                switch (m_state)
+                {
+                    case GameState.PLAYING:
+                        if (m_player is not null) m_player.ProcessInteractions();
+                        break;
+                    case GameState.DIALOG:
+                        m_dialogDirector.ForwardDialog();
+                        break;
+                }
+            };
+            m_input.actions["Jump"].performed += (_) => m_player.Jump();
+        }
+
+        private void OnDisable()
+        {
+            
+        }
+
         private void Update()
         {
             TickTimers();
@@ -70,13 +104,15 @@ namespace GameScenario
 
         private void TickTimers()
         {
-            List<TimerHolder> l_toDelete = new List<TimerHolder>();
-            for (int l_index = 0; l_index < m_timers.Count; l_index++)
+            List<int> l_toDelete = new List<int>();
+            List<int> l_keys = m_timers.Keys.ToList();
+            for(int l_index = 0; l_index < l_keys.Count; l_index++)
             {
-                TimerHolder l_timer = m_timers[l_index];
+                int l_key = l_keys[l_index];
+                TimerHolder l_timer = m_timers[l_key];
                 if (!l_timer.UpdateTimer(Time.deltaTime))
                 {
-                    l_toDelete.Add(l_timer);
+                    l_toDelete.Add(l_key);
                 }
             }
 
@@ -115,8 +151,22 @@ namespace GameScenario
             m_globalVolume.profile = defaultVolume;
             m_player.Resurrect();
         }
+
+        public bool HasTimer(int p_id)
+        {
+            return m_timers.ContainsKey(p_id);
+        }
+
+        public void EndTimer(int p_id)
+        {
+            if (HasTimer(p_id))
+            {
+                TimerHolder l_timer = m_timers[p_id];
+                l_timer.End();
+            }
+        }
         
-        public void AddTimer(TimerHolder p_timer)
+        public int AddTimer(TimerHolder p_timer)
         {
             if (p_timer.Started || p_timer.Ended)
             {
@@ -124,20 +174,34 @@ namespace GameScenario
             }
             
             p_timer.Start();
-            m_timers.Add(p_timer);
+            int l_id = Mathf.RoundToInt(Time.time * 100);
+            m_timers.Add(l_id, p_timer);
+
+            return l_id;
         }
 
-        public void AddDelayedAction(float p_delay, TimerHolder.OnEndHandler p_function)
+        public int AddTimer(
+            float p_duration, 
+            TimerHolder.OnUpdateHandler p_updateFunc,
+            TimerHolder.OnEndHandler p_endFunc)
         {
-            if (p_delay <= 0.0f) return;
+            TimerHolder l_timer = new TimerHolder() { Duration = p_duration };
+            l_timer.OnUpdate += p_updateFunc;
+            l_timer.OnEnd += p_endFunc;
+            
+            return this.AddTimer(l_timer);
+        }
+
+        public int AddDelayedAction(float p_delay, TimerHolder.OnEndHandler p_function)
+        {
+            if (p_delay <= 0.0f) return -1;
             
             TimerHolder l_timer = new TimerHolder() { Duration = p_delay };
             l_timer.OnEnd += p_function;
 
-            l_timer.Start();
-            m_timers.Add(l_timer);
+            return AddTimer(l_timer);
         }
-        
+
         #region EVENTS
         public delegate void OnPlayerDeathHandler();
         public delegate void OnGameStateChangeHandler(GameState p_newState, GameState p_oldState);

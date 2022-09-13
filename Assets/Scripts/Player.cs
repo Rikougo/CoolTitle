@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using GameScenario;
 using Interactions;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -19,7 +20,7 @@ public class Player : MonoBehaviour
     private float m_lastVerticalVelocity;
     private float m_splashTimer = 0.0f;
 
-    private PlayerInput m_input;
+    private GameDirector m_gameDirector;
     private Rigidbody2D m_rBody2D;
     [SerializeField] private Transform m_groundChecker;
     [SerializeField] private Transform m_visualTransform;
@@ -29,9 +30,8 @@ public class Player : MonoBehaviour
 
     private List<AreaActionable> m_actionables;
 
-    void Awake()
+    private void Awake()
     {
-        m_input = GetComponent<PlayerInput>();
         m_rBody2D = GetComponent<Rigidbody2D>();
 
         m_actionables = new List<AreaActionable>();
@@ -39,19 +39,12 @@ public class Player : MonoBehaviour
         m_grounded = false;
     }
 
-    private void OnEnable()
+    private void Start()
     {
-        m_input.actions["Jump"].performed += OnJump;
-        m_input.actions["Interact"].performed += OnInteraction;
+        m_gameDirector = GameObject.FindWithTag("GameDirector").GetComponent<GameDirector>();
     }
 
-    private void OnDisable()
-    {
-        m_input.actions["Jump"].performed -= OnJump;
-        m_input.actions["Interact"].performed -= OnInteraction;
-    }
-
-    void Update()
+    private void Update()
     {
         Collider2D l_groundCheckCollider = Physics2D.OverlapCircle(m_groundChecker.position, 0.2f, m_groundMask);
         m_grounded = !(l_groundCheckCollider is null);
@@ -62,9 +55,9 @@ public class Player : MonoBehaviour
         }
 
         Vector2 l_currentVelocity = m_rBody2D.velocity;
-        if (m_input.actions["Move"].IsPressed())
+        if (m_gameDirector.Input.actions["Move"].IsPressed())
         {
-            float l_rawSpeed = m_input.actions["Move"].ReadValue<float>();
+            float l_rawSpeed = m_gameDirector.Input.actions["Move"].ReadValue<float>();
 
             l_currentVelocity.x = l_rawSpeed * m_speed;
 
@@ -128,7 +121,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void OnJump(InputAction.CallbackContext p_context)
+    public void Jump()
     {
         if (m_grounded || m_jumpLeft > 0)
         {
@@ -138,7 +131,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void OnInteraction(InputAction.CallbackContext p_context)
+    public void ProcessInteractions()
     {
         if (m_actionables.Count > 0)
         {

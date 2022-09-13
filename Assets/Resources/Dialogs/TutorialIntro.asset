@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f670cfbc9b964b4b993fdda4a9a851e6, type: 3}
+  m_Name: TutorialIntro
+  m_EditorClassIdentifier: 
+  NodeLinks:
+  - BaseNodeGUID: 0523095c-a30c-457c-ba79-f9d403356257
+    PortName: Next
+    TargetNodeGUID: feeee449-7189-49af-92f3-082203e5602b
+  - BaseNodeGUID: feeee449-7189-49af-92f3-082203e5602b
+    PortName: Option 1
+    TargetNodeGUID: ab8dee83-a14f-4da9-9b0a-a4bab5ed3c5b
+  DialogueNodeData:
+  - EntryPoint: 0
+    NodeGUID: ab8dee83-a14f-4da9-9b0a-a4bab5ed3c5b
+    DialogueText: Where am I ?
+    Position: {x: 445, y: 200}
+  - EntryPoint: 1
+    NodeGUID: feeee449-7189-49af-92f3-082203e5602b
+    DialogueText: ...
+    Position: {x: 225, y: 200}
+  ExposedProperties: []
+  CommentBlockData: []

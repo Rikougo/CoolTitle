@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-namespace GameScenario.Dialog
+namespace Dialog.Runtime
 {
     [CreateAssetMenu(fileName = "DialogItem", menuName = "Game/DialogItem", order = 1)]
     public class DialogItem : ScriptableObject
@@ -19,11 +20,16 @@ namespace GameScenario.Dialog
             m_currentIndex = 0;
         }
 
-        public string PeekContent()
+        public bool PeekContent(out string l_result)
         {
-            string l_result = content[m_currentIndex];
+            if (IsConsumed)
+            {
+                l_result = String.Empty;
+                return false;
+            }
+            l_result = content[m_currentIndex];
             m_currentIndex++;
-            return l_result;
+            return true;
         }
     }
 }

@@ -45,8 +45,7 @@ namespace GameScenario.Utils
         /// Update timer Progress and call OnUpdate or OnEnd event based on the progression.
         /// </summary>
         /// <param name="p_deltaTime"></param>
-        /// <returns></returns>
-        /// <exception cref="TimerAlreadyEndedException"></exception>
+        /// <returns>If timer has ended or not</returns>
         public bool UpdateTimer(float p_deltaTime)
         {
             if (m_ended)
