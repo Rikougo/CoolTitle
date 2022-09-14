@@ -124,7 +124,7 @@ namespace Dialog.Editor.Graph
         {
             var l_tempDialogueNode = new DialogNode()
             {
-                title = p_nodeName,
+                title = "Dialog",
                 DialogueText = p_nodeName,
                 GUID = Guid.NewGuid().ToString()
             };
@@ -137,13 +137,17 @@ namespace Dialog.Editor.Graph
             l_tempDialogueNode.SetPosition(new Rect(p_position,
                 DefaultNodeSize)); //To-Do: implement screen center instantiation positioning
 
-            var l_textField = new TextField("");
+            var l_textField = new TextField("Content")
+            {
+                name = "content_editor",
+                multiline = true
+            };
             l_textField.RegisterValueChangedCallback(p_evt =>
             {
                 l_tempDialogueNode.DialogueText = p_evt.newValue;
                 l_tempDialogueNode.title = p_evt.newValue;
             });
-            l_textField.SetValueWithoutNotify(l_tempDialogueNode.title);
+            l_textField.SetValueWithoutNotify(l_tempDialogueNode.DialogueText);
             l_tempDialogueNode.mainContainer.Add(l_textField);
 
             var l_button = new Button(() => { AddChoicePort(l_tempDialogueNode); })

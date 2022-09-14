@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f670cfbc9b964b4b993fdda4a9a851e6, type: 3}
-  m_Name: TutorialIntro
+  m_Name: New Narrative
   m_EditorClassIdentifier: 
   NodeLinks:
-  - BaseNodeGUID: 0523095c-a30c-457c-ba79-f9d403356257
+  - BaseNodeGUID: 0f3fabfe-c664-4556-b09c-9e3474b6c864
     PortName: Next
-    TargetNodeGUID: feeee449-7189-49af-92f3-082203e5602b
-  - BaseNodeGUID: feeee449-7189-49af-92f3-082203e5602b
-    PortName: Option 1
-    TargetNodeGUID: ab8dee83-a14f-4da9-9b0a-a4bab5ed3c5b
+    TargetNodeGUID: 79d73527-6f4b-48ef-b8f1-3c210d921d42
+  - BaseNodeGUID: 79d73527-6f4b-48ef-b8f1-3c210d921d42
+    PortName: 
+    TargetNodeGUID: 54668017-a6b1-49c3-a6fa-829ad472dd3f
   DialogueNodeData:
-  - EntryPoint: 0
-    NodeGUID: ab8dee83-a14f-4da9-9b0a-a4bab5ed3c5b
-    DialogueText: Where am I ?
-    Position: {x: 445, y: 200}
   - EntryPoint: 1
-    NodeGUID: feeee449-7189-49af-92f3-082203e5602b
+    NodeGUID: 79d73527-6f4b-48ef-b8f1-3c210d921d42
     DialogueText: ...
-    Position: {x: 225, y: 200}
+    Position: {x: 229, y: 200}
+  - EntryPoint: 0
+    NodeGUID: 54668017-a6b1-49c3-a6fa-829ad472dd3f
+    DialogueText: Where am I ?
+    Position: {x: 455, y: 200}
   ExposedProperties: []
   CommentBlockData: []

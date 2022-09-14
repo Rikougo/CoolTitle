@@ -1,1 +1,20 @@
-VisualElement {}
+VisualElement { }
+
+#add_choice_button { }
+
+#content_editor {
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+    background-color: #282828;
+}
+
+unity-text-field__input {
+    color: aqua;
+    font-size: 14px;
+}
+
+#content_editor Label {
+    font-size: 14px;
+    -unity-font-style: bold;
+}

@@ -33,7 +33,19 @@ namespace Dialog.Editor
         {
             if (!Edges.Any()) return;
 
-            DialogContainer l_container = ScriptableObject.CreateInstance<DialogContainer>();
+            DialogContainer l_container = Resources.Load<DialogContainer>($"Dialogs/{p_filePath}"); 
+            // = ScriptableObject.CreateInstance<DialogContainer>();
+
+            if (l_container == null)
+            {
+                l_container = ScriptableObject.CreateInstance<DialogContainer>();
+                AssetDatabase.CreateAsset(l_container, $"Assets/Resources/Dialogs/{p_filePath}.asset");
+            }
+            
+            l_container.ExposedProperties.Clear();
+            l_container.NodeLinks.Clear();
+            l_container.CommentBlockData.Clear();
+            l_container.DialogueNodeData.Clear();
 
             Edge[] l_connectedPorts = Edges.Where(p_edge => p_edge.input.node != null).ToArray();
 
@@ -68,7 +80,8 @@ namespace Dialog.Editor
             if (!AssetDatabase.IsValidFolder("Assets/Resources/Dialogs"))
                 AssetDatabase.CreateFolder("Assets/Resources", "Dialogs");
             
-            AssetDatabase.CreateAsset(l_container, $"Assets/Resources/Dialogs/{p_filePath}.asset");
+            // AssetDatabase.CreateAsset(l_container, $"Assets/Resources/Dialogs/{p_filePath}.asset");
+            EditorUtility.SetDirty(l_container);
             AssetDatabase.SaveAssets();
         }
 
