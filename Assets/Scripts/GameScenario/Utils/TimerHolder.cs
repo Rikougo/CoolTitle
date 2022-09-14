@@ -10,7 +10,7 @@ namespace GameScenario.Utils
         }
 
         public delegate void OnEndHandler(TimerHolder p_timer);
-        public delegate void OnUpdateHandler(TimerHolder p_timer);
+        public delegate void OnUpdateHandler(TimerHolder p_timer, float p_deltaTime);
 
         public event OnUpdateHandler OnUpdate;
         public event OnEndHandler OnEnd;
@@ -55,7 +55,7 @@ namespace GameScenario.Utils
             m_currentStatus += p_deltaTime;
 
             if (m_currentStatus > m_duration) End();
-            else OnUpdate?.Invoke(this);
+            else OnUpdate?.Invoke(this, p_deltaTime);
 
             return m_currentStatus < m_duration;
         }

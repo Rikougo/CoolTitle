@@ -2,23 +2,31 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Cinemachine;
+using GameScenario;
+using GameScenario.Utils;
 using Interactions;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
+    [SerializeField] private LayerMask m_terrainMask;
     [SerializeField] private float m_speed;
+    [SerializeField] private float m_dashDistance;
+    [SerializeField] private float m_dashDuration;
     [SerializeField] private float m_jumpForce;
     [SerializeField] private float m_rotationSpeed;
     [SerializeField] private int m_bonusJump;
     private int m_jumpLeft;
     private bool m_grounded;
+    private bool m_canMove;
 
     [SerializeField] private Vector3 m_splashScale;
     private float m_lastVerticalVelocity;
     private float m_splashTimer = 0.0f;
 
+    [SerializeField] private InputAction m_mousePositionAction;
     private PlayerInput m_input;
     private Rigidbody2D m_rBody2D;
     [SerializeField] private Transform m_groundChecker;
@@ -37,18 +45,21 @@ public class Player : MonoBehaviour
         m_actionables = new List<AreaActionable>();
 
         m_grounded = false;
+        m_canMove = true;
     }
 
     private void OnEnable()
     {
         m_input.actions["Jump"].performed += OnJump;
         m_input.actions["Interact"].performed += OnInteraction;
+        m_input.actions["Special"].performed += (_) => Dash();
     }
 
     private void OnDisable()
     {
         m_input.actions["Jump"].performed -= OnJump;
         m_input.actions["Interact"].performed -= OnInteraction;
+        m_input.actions["Special"].performed -= _ => Dash();
     }
 
     void Update()
@@ -62,50 +73,50 @@ public class Player : MonoBehaviour
         }
 
         Vector2 l_currentVelocity = m_rBody2D.velocity;
-        if (m_input.actions["Move"].IsPressed())
+        float l_inputDirection = m_input.actions["Move"].ReadValue<float>();
+
+        if (m_canMove)
         {
-            float l_rawSpeed = m_input.actions["Move"].ReadValue<float>();
+            this.Move(l_inputDirection, ref l_currentVelocity);
 
-            l_currentVelocity.x = l_rawSpeed * m_speed;
-
-            Vector3 l_eulerAngles = m_spriteRenderer.transform.eulerAngles;
-            l_eulerAngles.z -= Mathf.Sign(l_rawSpeed) * m_rotationSpeed * Time.deltaTime;
-            m_spriteRenderer.transform.eulerAngles = l_eulerAngles;
-        }
-        else
-            l_currentVelocity.x = 0;
-
-        const float MaxVerticalSpeed = 10.0f;
-        if (Mathf.Abs(l_currentVelocity.y) > 1.5f)
-        {
-            float l_ratio = Mathf.Min(Mathf.Abs(l_currentVelocity.y) / MaxVerticalSpeed, 1.0f);
-
-            Vector3 l_spriteScale = m_visualTransform.localScale;
-            l_spriteScale.x = 1.0f - l_ratio * 0.2f;
-            l_spriteScale.y = 1.0f + l_ratio * 0.2f;
-
-            m_visualTransform.localScale = l_spriteScale;
-            m_lastVerticalVelocity = Mathf.Abs(l_currentVelocity.y);
-        }
-        else
-        {
-            if (m_lastVerticalVelocity > 3.0f)
+            const float MaxVerticalSpeed = 10.0f;
+            if (Mathf.Abs(l_currentVelocity.y) > 1.5f)
             {
-                m_lastVerticalVelocity = 0.0f;
-                m_visualTransform.localScale = m_splashScale;
-                m_splashTimer = 0.25f;
+                float l_ratio = Mathf.Min(Mathf.Abs(l_currentVelocity.y) / MaxVerticalSpeed, 1.0f);
+
+                Vector3 l_spriteScale = m_visualTransform.localScale;
+                l_spriteScale.x = 1.0f - l_ratio * 0.2f;
+                l_spriteScale.y = 1.0f + l_ratio * 0.2f;
+
+                m_visualTransform.localScale = l_spriteScale;
+                m_lastVerticalVelocity = Mathf.Abs(l_currentVelocity.y);
             }
-
-            if (m_splashTimer > 0.0f)
+            else
             {
-                float l_cursor = m_splashTimer / 0.25f;
-                m_visualTransform.localScale = Vector3.Lerp(
-                    new Vector3(1.0f, 1.0f, 1.0f),
-                    m_splashScale,
-                    l_cursor);
-                m_splashTimer -= Time.deltaTime;
+                if (m_lastVerticalVelocity > 3.0f)
+                {
+                    m_lastVerticalVelocity = 0.0f;
+                    m_visualTransform.localScale = m_splashScale;
+                    m_splashTimer = 0.25f;
+                }
+
+                if (m_splashTimer > 0.0f)
+                {
+                    float l_cursor = m_splashTimer / 0.25f;
+                    m_visualTransform.localScale = Vector3.Lerp(
+                        new Vector3(1.0f, 1.0f, 1.0f),
+                        m_splashScale,
+                        l_cursor);
+                    m_splashTimer -= Time.deltaTime;
+                }
             }
         }
+        else
+        {
+            // l_currentVelocity = Vector2.zero;
+        }
+
+        this.Stretch();
 
         m_rBody2D.velocity = l_currentVelocity;
     }
@@ -128,10 +139,95 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void Stretch()
+    {
+        
+    }
+    
+    /// <summary>
+    /// Moving player along X axis (horizontally) based on given direction (player input)
+    /// Managed player rotation on movement
+    /// </summary>
+    /// <param name="p_direction">Clamped between [-1;1]</param>
+    /// <param name="p_currentVelocity">Modified velocity (on x axis only)</param>
+    private void Move(float p_direction, ref Vector2 p_currentVelocity)
+    {
+        if (p_direction != 0.0f)
+        {
+            p_currentVelocity.x = p_direction * m_speed;
+            
+            Vector3 l_eulerAngles = m_spriteRenderer.transform.eulerAngles;
+            l_eulerAngles.z -= Mathf.Sign(p_direction) * m_rotationSpeed * Time.deltaTime;
+            m_spriteRenderer.transform.eulerAngles = l_eulerAngles;
+        }
+        else
+            p_currentVelocity.x = 0.0f;
+    }
+
+    private void Dash()
+    {
+        if (!m_canMove) return;
+
+        GameObject m_camObject = GameObject.FindWithTag("MainCamera");
+        
+        Vector3 l_initialPosition = transform.position;
+        Vector2 l_mousePosition = Mouse.current.position.ReadValue();
+        /*Vector3 l_worldMousePosition = m_camObject.GetComponent<Camera>()
+            .ScreenToWorldPoint(new Vector3(l_mousePosition.x, l_mousePosition.y, m_camObject.GetComponent<Camera>().nearClipPlane));*/
+        Vector3 l_worldMousePosition = GetWorldPositionOnPlane(new Vector3(l_mousePosition.x, l_mousePosition.y, 0.0f), 0.0f);
+        Vector2 l_direction = (l_worldMousePosition - l_initialPosition);
+        
+        RaycastHit2D l_hit = Physics2D.Raycast(l_initialPosition, l_direction.normalized, float.PositiveInfinity, m_terrainMask);
+
+        float l_targetDashDistance = Mathf.Min(l_direction.magnitude, m_dashDistance);
+
+        if (l_hit.collider != null) l_targetDashDistance = Mathf.Min(l_targetDashDistance, l_hit.distance);
+
+        l_direction = l_direction.normalized;
+
+        m_canMove = false;
+        TimerHolder l_dashTimer = new TimerHolder()
+        {
+            Duration = m_dashDuration
+        };
+
+        l_dashTimer.OnUpdate += (p_timer, p_deltaTime) =>
+        {
+            float l_progress = 1 - Mathf.Pow(1.0f - p_timer.Progress, 4.0f);
+            Vector2 l_delta = l_direction * (l_targetDashDistance * l_progress);
+
+            if (l_progress > 0.65)
+            {
+                var l_brain = m_camObject.GetComponent<CinemachineBrain>().ActiveVirtualCamera as CinemachineVirtualCamera;
+                if (l_brain != null)
+                {
+                    l_brain.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>().m_AmplitudeGain = 5.0f;
+                } 
+            }
+
+            transform.position = l_initialPosition + new Vector3(l_delta.x, l_delta.y, 0.0f);
+        };
+
+        l_dashTimer.OnEnd += (_) =>
+        {
+            var l_brain = m_camObject.GetComponent<CinemachineBrain>().ActiveVirtualCamera as CinemachineVirtualCamera;
+            if (l_brain != null)
+            {
+                l_brain.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>().m_AmplitudeGain = 0.0f;
+            }
+            m_canMove = true;
+        };
+        
+        GameObject.FindWithTag("GameDirector").GetComponent<GameDirector>().AddTimer(l_dashTimer);
+    }
+    
     private void OnJump(InputAction.CallbackContext p_context)
     {
         if (m_grounded || m_jumpLeft > 0)
         {
+            Vector2 l_currentVelocity = m_rBody2D.velocity;
+            l_currentVelocity.y = 0.0f;
+            m_rBody2D.velocity = l_currentVelocity;
             m_rBody2D.AddForce(new Vector2(0, m_jumpForce), ForceMode2D.Impulse);
             m_jumpLeft--;
             m_grounded = false;
@@ -150,12 +246,23 @@ public class Player : MonoBehaviour
     {
         m_deathParticle.Play();
         m_visualTransform.gameObject.SetActive(false);
+        m_rBody2D.velocity = Vector2.zero; // reset velocity to prevent inertia movements
+        m_rBody2D.isKinematic = true;
         enabled = false;
     }
 
     public void Resurrect()
     {
         m_visualTransform.gameObject.SetActive(true);
+        m_rBody2D.isKinematic = false;
         enabled = true;
+    }
+    
+    public Vector3 GetWorldPositionOnPlane(Vector3 screenPosition, float z) {
+        Ray ray = Camera.main.ScreenPointToRay(screenPosition);
+        Plane xy = new Plane(Vector3.forward, new Vector3(0, 0, z));
+        float distance;
+        xy.Raycast(ray, out distance);
+        return ray.GetPoint(distance);
     }
 }

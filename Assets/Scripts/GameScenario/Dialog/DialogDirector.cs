@@ -35,7 +35,7 @@ namespace GameScenario.Dialog
 
             Utils.TimerHolder l_timer = new TimerHolder() { Duration = p_content.Length * m_secondPerLetter };
 
-            l_timer.OnUpdate += (Utils.TimerHolder p_timer) =>
+            l_timer.OnUpdate += (Utils.TimerHolder p_timer, float p_deltaTime) =>
             {
                 string l_contentSlice = p_content.Substring(0, (int)(p_timer.Progress * p_content.Length));
                 m_dialogText.text = l_contentSlice;
