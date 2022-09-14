@@ -131,7 +131,7 @@ namespace GameScenario
             defaultCameraBrain.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>().m_AmplitudeGain = targetAmplitudeGain;
 
             TimerHolder l_shakeTimer = new TimerHolder(){ Duration = 0.7f };
-            l_shakeTimer.OnUpdate += (TimerHolder p_timer) =>
+            l_shakeTimer.OnUpdate += (TimerHolder p_timer, float p_deltaTime) =>
             {
                 float l_invertProgress = 1.0f - p_timer.Progress;
                 float l_coef = Math.Abs(l_invertProgress - 1.0f) < 0.001f ? 1.0f : 1 - Mathf.Pow(2.0f, -10.0f * l_invertProgress);
