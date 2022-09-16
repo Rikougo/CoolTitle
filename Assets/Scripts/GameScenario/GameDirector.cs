@@ -90,6 +90,17 @@ namespace GameScenario
                 }
             };
             m_input.actions["Jump"].performed += (_) => m_player.Jump();
+            m_input.actions["Special"].performed += (_) => m_player.Dash();
+            m_input.actions["VerticalMove"].performed += (ctx) =>
+            {
+                switch (m_state)
+                {
+                    case GameState.DIALOG:
+                        float l_direction = ctx.ReadValue<float>();
+                        m_dialogDirector.SelectedChoices = m_dialogDirector.SelectedChoices + Mathf.RoundToInt(l_direction);
+                        break;
+                }
+            };
         }
 
         private void OnDisable()
@@ -131,7 +142,7 @@ namespace GameScenario
             defaultCameraBrain.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>().m_AmplitudeGain = targetAmplitudeGain;
 
             TimerHolder l_shakeTimer = new TimerHolder(){ Duration = 0.7f };
-            l_shakeTimer.OnUpdate += (TimerHolder p_timer) =>
+            l_shakeTimer.OnUpdate += (TimerHolder p_timer, float p_deltaTime) =>
             {
                 float l_invertProgress = 1.0f - p_timer.Progress;
                 float l_coef = Math.Abs(l_invertProgress - 1.0f) < 0.001f ? 1.0f : 1 - Mathf.Pow(2.0f, -10.0f * l_invertProgress);

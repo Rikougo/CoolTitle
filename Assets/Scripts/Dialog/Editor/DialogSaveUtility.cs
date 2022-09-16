@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Dialog.Editor.Assets;
 using Dialog.Editor.Graph;
@@ -13,12 +14,15 @@ namespace Dialog.Editor
 {
     public class DialogSaveUtility
     {
+        private static string DIALOG_PATH = "Assets/Resources/Dialogs";
+
         private DialogGraphView m_targetGraphView;
         private DialogContainer m_dialogContainer;
 
         private List<Edge> Edges => m_targetGraphView.edges.ToList();
         private List<DialogNode> Nodes => m_targetGraphView.nodes.ToList().Cast<DialogNode>().ToList();
-        private List<Group> CommentBlocks => 
+
+        private List<Group> CommentBlocks =>
             m_targetGraphView.graphElements.ToList().Where(x => x is Group).Cast<Group>().ToList();
 
         public static DialogSaveUtility GetInstance(DialogGraphView p_target)
@@ -29,19 +33,35 @@ namespace Dialog.Editor
             };
         }
 
+        public static void EnsurePath(string p_filePath)
+        {
+            string[] l_directories = p_filePath.Split("/");
+            for (int l_index = 0; l_index < l_directories.Length - 1; l_index++)
+            {
+                string l_currentPath = String.Join("/", new ArraySegment<string>(l_directories, 0, l_index).ToArray());
+                
+                string l_currentDirectory = l_currentPath == String.Empty ? l_directories[l_index] : l_currentPath + "/" + l_directories[l_index];
+                
+                if (!AssetDatabase.IsValidFolder($"{DIALOG_PATH}/{l_currentDirectory}"))
+                    AssetDatabase.CreateFolder(l_currentPath == String.Empty ? $"{DIALOG_PATH}" : $"{DIALOG_PATH}/{l_currentPath}", l_currentDirectory);
+            }
+        }
+
         public void SaveGraph(string p_filePath)
         {
             if (!Edges.Any()) return;
 
-            DialogContainer l_container = Resources.Load<DialogContainer>($"Dialogs/{p_filePath}"); 
+            DialogSaveUtility.EnsurePath(p_filePath);
+
+            DialogContainer l_container = Resources.Load<DialogContainer>($"Dialogs/{p_filePath}");
             // = ScriptableObject.CreateInstance<DialogContainer>();
 
             if (l_container == null)
             {
                 l_container = ScriptableObject.CreateInstance<DialogContainer>();
-                AssetDatabase.CreateAsset(l_container, $"Assets/Resources/Dialogs/{p_filePath}.asset");
+                AssetDatabase.CreateAsset(l_container, $"{DIALOG_PATH}/{p_filePath}.asset");
             }
-            
+
             l_container.ExposedProperties.Clear();
             l_container.NodeLinks.Clear();
             l_container.CommentBlockData.Clear();
@@ -67,7 +87,7 @@ namespace Dialog.Editor
                 bool l_isEntryPoint = Edges
                     .Where(p_edge => (p_edge.input.node as DialogNode)?.GUID == l_node.GUID)
                     .Any(p_edge => (p_edge.output.node as DialogNode)?.EntryPoint ?? false);
-                
+
                 l_container.DialogueNodeData.Add(new DialogNodeData()
                 {
                     NodeGUID = l_node.GUID,
@@ -76,9 +96,6 @@ namespace Dialog.Editor
                     EntryPoint = l_isEntryPoint
                 });
             }
-
-            if (!AssetDatabase.IsValidFolder("Assets/Resources/Dialogs"))
-                AssetDatabase.CreateFolder("Assets/Resources", "Dialogs");
             
             // AssetDatabase.CreateAsset(l_container, $"Assets/Resources/Dialogs/{p_filePath}.asset");
             EditorUtility.SetDirty(l_container);
@@ -93,14 +110,14 @@ namespace Dialog.Editor
                 EditorUtility.DisplayDialog("File Not Found", "Target Narrative Data does not exist!", "OK");
                 return;
             }
-            
+
             ClearGraph();
             GenerateDialogueNodes();
             ConnectDialogueNodes();
             AddExposedProperties();
             GenerateCommentBlocks();
         }
-        
+
         /// <summary>
         /// Set Entry point GUID then Get All Nodes, remove all and their edges. Leave only the entrypoint node. (Remove its edge too)
         /// </summary>
@@ -115,7 +132,7 @@ namespace Dialog.Editor
                 m_targetGraphView.RemoveElement(l_perNode);
             }
         }
-        
+
         /// <summary>
         /// Create All serialized nodes and assign their guid and dialogue text to them
         /// </summary>
@@ -131,7 +148,7 @@ namespace Dialog.Editor
                 l_nodePorts.ForEach(x => m_targetGraphView.AddChoicePort(l_tempNode, x.PortName));
             }
         }
-        
+
         private void ConnectDialogueNodes()
         {
             for (var i = 0; i < Nodes.Count; i++)
@@ -142,7 +159,7 @@ namespace Dialog.Editor
                 {
                     var l_targetNodeGuid = l_connections[j].TargetNodeGUID;
                     var l_targetNode = Nodes.First(x => x.GUID == l_targetNodeGuid);
-                    LinkNodesTogether(Nodes[i].outputContainer[j].Q<Port>(), (Port) l_targetNode.inputContainer[0]);
+                    LinkNodesTogether(Nodes[i].outputContainer[j].Q<Port>(), (Port)l_targetNode.inputContainer[0]);
 
                     l_targetNode.SetPosition(new Rect(
                         m_dialogContainer.DialogueNodeData.First(x => x.NodeGUID == l_targetNodeGuid).Position,
@@ -150,7 +167,7 @@ namespace Dialog.Editor
                 }
             }
         }
-        
+
         private void LinkNodesTogether(Port p_outputSocket, Port p_inputSocket)
         {
             var l_tempEdge = new Edge()
@@ -162,7 +179,7 @@ namespace Dialog.Editor
             l_tempEdge?.output.Connect(l_tempEdge);
             m_targetGraphView.Add(l_tempEdge);
         }
-        
+
         private void AddExposedProperties()
         {
             m_targetGraphView.ClearBlackBoardAndExposedProperties();
@@ -181,9 +198,10 @@ namespace Dialog.Editor
 
             foreach (var l_commentBlockData in m_dialogContainer.CommentBlockData)
             {
-               var l_block = m_targetGraphView.CreateCommentBlock(new Rect(l_commentBlockData.Position, m_targetGraphView.DefaultCommentBlockSize),
+                var l_block = m_targetGraphView.CreateCommentBlock(
+                    new Rect(l_commentBlockData.Position, m_targetGraphView.DefaultCommentBlockSize),
                     l_commentBlockData);
-               l_block.AddElements(Nodes.Where(x=>l_commentBlockData.ChildNodes.Contains(x.GUID)));
+                l_block.AddElements(Nodes.Where(x => l_commentBlockData.ChildNodes.Contains(x.GUID)));
             }
         }
     }

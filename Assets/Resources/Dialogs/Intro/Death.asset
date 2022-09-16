@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f670cfbc9b964b4b993fdda4a9a851e6, type: 3}
+  m_Name: Death
+  m_EditorClassIdentifier: 
+  NodeLinks:
+  - BaseNodeGUID: ac3fb96d-f3e3-4461-ab26-7a6d4e21948b
+    PortName: Next
+    TargetNodeGUID: 90269f1d-2733-4161-8692-095a2b231ee3
+  - BaseNodeGUID: 90269f1d-2733-4161-8692-095a2b231ee3
+    PortName: Option 1
+    TargetNodeGUID: 6add9de8-ee66-42b3-844c-c73f2cdf0ee7
+  - BaseNodeGUID: 6add9de8-ee66-42b3-844c-c73f2cdf0ee7
+    PortName: Option 1
+    TargetNodeGUID: bc8b68e8-0f7c-40f5-8a6c-60e17b676304
+  DialogueNodeData:
+  - EntryPoint: 1
+    NodeGUID: 90269f1d-2733-4161-8692-095a2b231ee3
+    DialogueText: Oh, hello...
+    Position: {x: 256, y: 181}
+  - EntryPoint: 0
+    NodeGUID: bc8b68e8-0f7c-40f5-8a6c-60e17b676304
+    DialogueText: Eh... am I stupid. Well you should be cautious in this place, good
+      luck
+    Position: {x: 836, y: 181}
+  - EntryPoint: 0
+    NodeGUID: 6add9de8-ee66-42b3-844c-c73f2cdf0ee7
+    DialogueText: What are you doing here ?
+    Position: {x: 498, y: 181}
+  ExposedProperties: []
+  CommentBlockData: []
