@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.elye.cheapdialogsystem": {
+      "version": "https://github.com/Rikougo/CheapDialogSystem.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "98ef0275ccbf6b39976aec28fa7fd8e734bf96c1"
+    },
     "com.unity.2d.animation": {
       "version": "7.0.6",
       "depth": 1,
