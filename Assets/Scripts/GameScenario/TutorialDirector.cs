@@ -1,11 +1,10 @@
-using Dialog.Runtime;
-using Dialog.Runtime.Assets;
+using CheapDialogSystem.Runtime.Assets;
+using Dialog;
 using UnityEngine;
-
 
 namespace GameScenario
 {
-    [RequireComponent(typeof(GameDirector), typeof(DialogDirector))]
+    [RequireComponent(typeof(GameDirector))]
     public class TutorialDirector : MonoBehaviour
     {
         private GameDirector m_gameDirector;
@@ -18,7 +17,6 @@ namespace GameScenario
         {
             m_gameDirector = GetComponent<GameDirector>();
             m_dialogDirector = GetComponent<DialogDirector>();
-            
             m_dialogDirector.SubmitDialog(startDialogItem);
             
             m_gameDirector.OnPlayerDeath += () =>
