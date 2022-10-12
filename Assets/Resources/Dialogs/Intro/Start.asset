@@ -17,23 +17,24 @@ MonoBehaviour:
     PortName: Next
     TargetNodeGUID: 90269f1d-2733-4161-8692-095a2b231ee3
   - BaseNodeGUID: 90269f1d-2733-4161-8692-095a2b231ee3
-    PortName: This place look strange
-    TargetNodeGUID: 6add9de8-ee66-42b3-844c-c73f2cdf0ee7
+    PortName: I have no time
+    TargetNodeGUID: dc7a8069-a782-48c8-a104-6d03bc77b3d3
   - BaseNodeGUID: 90269f1d-2733-4161-8692-095a2b231ee3
-    PortName: KOWABUNGA
-    TargetNodeGUID: 8176826a-9aa4-4a56-b81a-1558692b6611
+    PortName: Where am I ?
+    TargetNodeGUID: 161b94e9-dd35-421a-9a73-9d63b9559c96
   DialogueNodeData:
+  - EntryPoint: 0
+    NodeGUID: dc7a8069-a782-48c8-a104-6d03bc77b3d3
+    DialogueText: ...
+    Position: {x: 517, y: 310}
   - EntryPoint: 1
     NodeGUID: 90269f1d-2733-4161-8692-095a2b231ee3
-    DialogueText: ...
-    Position: {x: 259, y: 181}
+    DialogueText: Greetings pal.
+    Position: {x: 244, y: 200}
   - EntryPoint: 0
-    NodeGUID: 6add9de8-ee66-42b3-844c-c73f2cdf0ee7
-    DialogueText: Where am I ?
-    Position: {x: 568, y: 181}
-  - EntryPoint: 0
-    NodeGUID: 8176826a-9aa4-4a56-b81a-1558692b6611
-    DialogueText: PIZZA !
-    Position: {x: 568, y: 329}
+    NodeGUID: 161b94e9-dd35-421a-9a73-9d63b9559c96
+    DialogueText: You will find out soon enough, it seems that you have something
+      to do.
+    Position: {x: 565, y: 138}
   ExposedProperties: []
   CommentBlockData: []

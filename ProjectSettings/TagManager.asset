@@ -6,6 +6,7 @@ TagManager:
   tags:
   - GlobalVolume
   - GameDirector
+  - Enemy
   layers:
   - Default
   - TransparentFX

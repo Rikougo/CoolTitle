@@ -60,10 +60,11 @@ namespace Player
         public bool m_onGround;
         private bool m_currentlyJumping;
         
-        private static readonly int JumpAnimID = Animator.StringToHash("jump");
+        private static readonly int JumpAnimID = Animator.StringToHash("jumpTrigger");
         private static readonly int GroundedAnimID = Animator.StringToHash("grounded");
         private static readonly int HorizontalVelocityAnimID = Animator.StringToHash("horizontal_velocity");
         private static readonly int VerticalVelocityAnimID = Animator.StringToHash("vertical_velocity");
+        private static readonly int Jumping = Animator.StringToHash("jumping");
 
         void Awake()
         {
@@ -137,6 +138,7 @@ namespace Player
             
             m_animator.SetFloat(HorizontalVelocityAnimID, Mathf.Abs(m_body2D.velocity.x));
             m_animator.SetFloat(VerticalVelocityAnimID, m_body2D.velocity.y);
+            m_animator.SetBool(Jumping, m_currentlyJumping);
         }
 
         private void setPhysics()
@@ -235,6 +237,7 @@ namespace Player
             //Create the jump, provided we are on the ground, in coyote time, or have a double jump available
             if (m_onGround || (m_coyoteTimeCounter > 0.03f && m_coyoteTimeCounter < m_coyoteTime) || m_canJumpAgain)
             {
+                m_animator.SetTrigger(JumpAnimID);
                 m_desiredJump = false;
                 m_jumpBufferCounter = 0;
                 m_coyoteTimeCounter = 0;

@@ -18,14 +18,6 @@ namespace GameScenario
             m_gameDirector = GetComponent<GameDirector>();
             m_dialogDirector = GetComponent<DialogDirector>();
             m_dialogDirector.SubmitDialog(startDialogItem);
-            
-            m_gameDirector.OnPlayerDeath += () =>
-            {
-                m_gameDirector.AddDelayedAction(1.5f, (_) =>
-                {
-                    m_dialogDirector.SubmitDialog(deathDialogItem);
-                });
-            };
         }
     }
 }

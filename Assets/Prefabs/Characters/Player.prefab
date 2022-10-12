@@ -5069,7 +5069,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7452299526265295095}
-  - component: {fileID: 7452299526265295093}
+  - component: {fileID: 6019675540926251600}
   - component: {fileID: 7452299526265295091}
   - component: {fileID: 7452299526265295090}
   - component: {fileID: 7738309001117307805}
@@ -5102,7 +5102,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7452299526265295093
+--- !u!114 &6019675540926251600
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5111,15 +5111,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 7452299526265295092}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 65cea9e450ef4d04f84b5cedc767bdfc, type: 3}
+  m_Script: {fileID: 11500000, guid: 9dfe6044592a7ca45bd05f2d681970f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_maxSpeed: 10
-  m_maxAcceleration: 0
-  m_maxDecceleration: 0
+  m_maxAcceleration: 52
+  m_maxDecceleration: 52
   m_maxTurnSpeed: 80
-  m_maxAirAcceleration: 0
-  m_maxAirDeceleration: 0
+  m_maxAirAcceleration: 100
+  m_maxAirDeceleration: 100
   m_maxAirTurnSpeed: 80
   m_friction: 0
   m_useAcceleration: 0
@@ -5141,7 +5141,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_body2D: {fileID: 7452299526265295088}
   m_velocity: {x: 0, y: 0}
-  m_jumpHeight: 4.5
+  m_jumpHeight: 5.5
   m_timeToJumpApex: 0.4
   m_upwardMovementMultiplier: 1
   m_downwardMovementMultiplier: 5
@@ -10115,7 +10115,7 @@ SpriteRenderer:
   m_SortingLayerID: -1670991511
   m_SortingLayer: 2
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1039866275, guid: 6418fefea71a4b642bca57ae29f0b45f, type: 3}
+  m_Sprite: {fileID: 853299329, guid: 6418fefea71a4b642bca57ae29f0b45f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

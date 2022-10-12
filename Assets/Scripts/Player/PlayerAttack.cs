@@ -24,7 +24,7 @@ namespace Player
         public List<Collider2D> strikeColliders;
         
         private static readonly int ComboAnimID = Animator.StringToHash("combo_state");
-        private static readonly int StrikeAnimID = Animator.StringToHash("strike");
+        private static readonly int StrikeAnimID = Animator.StringToHash("strikeTrigger");
 
         public bool Attacking => m_attacking;
 
