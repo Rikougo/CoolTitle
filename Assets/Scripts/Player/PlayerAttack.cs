@@ -13,7 +13,7 @@ namespace Player
         private bool m_canAttack = true;
         private float m_attackTimer = 0.0f;
         private int m_currentCombo = 0;
-        
+
         private bool m_desiredAttack = false;
         private float m_attackBufferTimer = 0.0f;
 
@@ -23,7 +23,7 @@ namespace Player
         public int maxCombo = 3;
 
         public List<Collider2D> strikeColliders;
-        
+
         private static readonly int ComboAnimID = Animator.StringToHash("combo_state");
         private static readonly int StrikeAnimID = Animator.StringToHash("strikeTrigger");
 
@@ -72,8 +72,13 @@ namespace Player
             if (attackTime - m_attackTimer > chainTime) m_canAttack = true;
 
             if (m_attackBufferTimer > 0) m_attackBufferTimer -= Time.deltaTime;
+            if (m_desiredAttack && m_attackBufferTimer <= 0.0f)
+            {
+                m_desiredAttack = false;
+                m_attackBufferTimer = 0.0f;
+            }
 
-            if (m_desiredAttack && m_attackBufferTimer < 0.0f)
+            if (m_moveLimit.CanDo(PlayerMoveLimit.Actions.Attack) && m_desiredAttack)
             {
                 m_desiredAttack = false;
                 DoAttack();
@@ -85,7 +90,7 @@ namespace Player
             m_attacking = true;
             m_canAttack = false;
             m_attackTimer = attackTime;
-            
+
             m_animator.SetInteger(ComboAnimID, m_currentCombo);
             m_animator.SetTrigger(StrikeAnimID);
 

@@ -7,7 +7,6 @@ namespace Player
 {
     public class PlayerRoll : MonoBehaviour
     {
-        private Rigidbody2D m_rigidbody2D;
         private PlayerGround m_playerGround;
         private PlayerMoveLimit m_moveLimit;
         private Animator m_animator;
@@ -26,7 +25,6 @@ namespace Player
 
         private void Awake()
         {
-            m_rigidbody2D = GetComponent<Rigidbody2D>();
             m_playerGround = GetComponent<PlayerGround>();
             m_moveLimit = GetComponent<PlayerMoveLimit>();
             m_animator = GetComponent<Animator>();

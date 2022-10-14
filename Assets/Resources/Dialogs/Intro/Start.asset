@@ -22,11 +22,10 @@ MonoBehaviour:
   - BaseNodeGUID: 90269f1d-2733-4161-8692-095a2b231ee3
     PortName: Where am I ?
     TargetNodeGUID: 161b94e9-dd35-421a-9a73-9d63b9559c96
+  - BaseNodeGUID: dc7a8069-a782-48c8-a104-6d03bc77b3d3
+    PortName: Option 1
+    TargetNodeGUID: 6049d450-f91d-4c86-9174-35fb93c25fd0
   DialogueNodeData:
-  - EntryPoint: 0
-    NodeGUID: dc7a8069-a782-48c8-a104-6d03bc77b3d3
-    DialogueText: ...
-    Position: {x: 517, y: 310}
   - EntryPoint: 1
     NodeGUID: 90269f1d-2733-4161-8692-095a2b231ee3
     DialogueText: Greetings pal.
@@ -35,6 +34,14 @@ MonoBehaviour:
     NodeGUID: 161b94e9-dd35-421a-9a73-9d63b9559c96
     DialogueText: You will find out soon enough, it seems that you have something
       to do.
-    Position: {x: 565, y: 138}
+    Position: {x: 506, y: 286}
+  - EntryPoint: 0
+    NodeGUID: dc7a8069-a782-48c8-a104-6d03bc77b3d3
+    DialogueText: ...
+    Position: {x: 521, y: 126}
+  - EntryPoint: 0
+    NodeGUID: 6049d450-f91d-4c86-9174-35fb93c25fd0
+    DialogueText: Dialogue Node
+    Position: {x: 785, y: 126}
   ExposedProperties: []
   CommentBlockData: []
