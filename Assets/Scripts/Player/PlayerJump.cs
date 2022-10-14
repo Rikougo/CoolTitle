@@ -5,52 +5,52 @@ namespace Player
 {
     public class PlayerJump : MonoBehaviour
     {
-        [Header("Components")] [HideInInspector]
-        public Rigidbody2D m_body2D;
+        [Header("Components")]
+        private Rigidbody2D m_body2D;
         private Animator m_animator;
 
         private PlayerGround m_ground;
-        [HideInInspector] public Vector2 m_velocity;
+        private PlayerMoveLimit m_moveLimit;
+        private Vector2 m_velocity;
 
         [Header("Jumping Stats")] [SerializeField, Range(2f, 5.5f)] [Tooltip("Maximum jump height")]
-        public float m_jumpHeight = 7.3f;
-
-
-//If you're using your stats from Platformer Toolkit with this character controller, please note that the number on the Jump Duration handle does not match this stat
-//It is re-scaled, from 0.2f - 1.25f, to 1 - 10.
-//You can transform the number on screen to the stat here, using the function at the bottom of this script
+        private float m_jumpHeight = 7.3f;
+        
+        //If you're using your stats from Platformer Toolkit with this character controller, please note that the number on the Jump Duration handle does not match this stat
+        //It is re-scaled, from 0.2f - 1.25f, to 1 - 10.
+        //You can transform the number on screen to the stat here, using the function at the bottom of this script
 
 
         [SerializeField, Range(0.2f, 1.25f)] [Tooltip("How long it takes to reach that height before coming back down")]
-        public float m_timeToJumpApex;
+        private float m_timeToJumpApex;
 
         [SerializeField, Range(0f, 5f)] [Tooltip("Gravity multiplier to apply when going up")]
-        public float m_upwardMovementMultiplier = 1f;
+        private float m_upwardMovementMultiplier = 1f;
 
         [SerializeField, Range(1f, 10f)] [Tooltip("Gravity multiplier to apply when coming down")]
-        public float m_downwardMovementMultiplier = 6.17f;
+        private float m_downwardMovementMultiplier = 6.17f;
 
         [SerializeField, Range(0, 1)] [Tooltip("How many times can you jump in the air?")]
-        public int m_maxAirJumps = 0;
+        private int m_maxAirJumps = 0;
 
-        [Header("Options")] [Tooltip("Should the character drop when you let go of jump?")]
-        public bool m_variablejumpHeight;
+        [Header("Options")] [SerializeField] [Tooltip("Should the character drop when you let go of jump?")]
+        private bool m_variableJumpHeight;
 
         [SerializeField, Range(1f, 10f)] [Tooltip("Gravity multiplier when you let go of jump")]
-        public float m_jumpCutOff;
+        private float m_jumpCutOff;
 
         [SerializeField] [Tooltip("The fastest speed the character can fall")]
-        public float m_speedLimit;
+        private float m_speedLimit;
 
         [SerializeField, Range(0f, 0.3f)] [Tooltip("How long should coyote time last?")]
-        public float m_coyoteTime = 0.15f;
+        private float m_coyoteTime = 0.15f;
 
         [SerializeField, Range(0f, 0.3f)] [Tooltip("How far from ground should we cache your jump?")]
-        public float jumpBuffer = 0.15f;
+        private float m_jumpBuffer = 0.15f;
 
         [Header("Calculations")] public float m_jumpSpeed;
         private float m_defaultGravityScale;
-        public float m_gravMultiplier;
+        private float m_gravMultiplier;
 
         [Header("Current State")] public bool m_canJumpAgain = false;
         private bool m_desiredJump;
@@ -72,6 +72,7 @@ namespace Player
 
             m_body2D = GetComponent<Rigidbody2D>();
             m_ground = GetComponent<PlayerGround>();
+            m_moveLimit = GetComponent<PlayerMoveLimit>();
             m_animator = GetComponentInChildren<Animator>();
             // juice = GetComponentInChildren<characterJuice>();
             m_defaultGravityScale = 1f;
@@ -79,22 +80,25 @@ namespace Player
 
         public void OnJump(InputAction.CallbackContext context)
         {
-            //This function is called when one of the jump buttons (like space or the A button) is pressed.
-
-            //When we press the jump button, tell the script that we desire a jump.
-            //Also, use the started and canceled contexts to know if we're currently holding the button
-            if (context.started)
+            if (m_moveLimit.CanDo(PlayerMoveLimit.Actions.Jump))
             {
-                m_desiredJump = true;
-                m_pressingJump = true;
-                
-                m_animator.SetTrigger(JumpAnimID);
-            }
+                //This function is called when one of the jump buttons (like space or the A button) is pressed.
 
-            if (context.canceled)
-            {
-                m_pressingJump = false;
-            }
+                //When we press the jump button, tell the script that we desire a jump.
+                //Also, use the started and canceled contexts to know if we're currently holding the button
+                if (context.started)
+                {
+                    m_desiredJump = true;
+                    m_pressingJump = true;
+                    
+                    m_animator.SetTrigger(JumpAnimID);
+                }
+
+                if (context.canceled)
+                {
+                    m_pressingJump = false;
+                }
+            } 
         }
 
         void Update()
@@ -104,10 +108,10 @@ namespace Player
             //Check if we're on ground, using Kit's Ground script
             m_onGround = m_ground.OnGround;
             
-            m_animator.SetTrigger(GroundedAnimID);
+            m_animator.SetBool(GroundedAnimID, m_onGround);
 
             //Jump buffer allows us to queue up a jump, which will play when we next hit the ground
-            if (jumpBuffer > 0)
+            if (m_jumpBuffer > 0)
             {
                 //Instead of immediately turning off "desireJump", start counting up...
                 //All the while, the DoAJump function will repeatedly be fired off
@@ -115,7 +119,7 @@ namespace Player
                 {
                     m_jumpBufferCounter += Time.deltaTime;
 
-                    if (m_jumpBufferCounter > jumpBuffer)
+                    if (m_jumpBufferCounter > m_jumpBuffer)
                     {
                         //If time exceeds the jump buffer, turn off "desireJump"
                         m_desiredJump = false;
@@ -182,7 +186,7 @@ namespace Player
                 else
                 {
                     //If we're using variable jump height...)
-                    if (m_variablejumpHeight)
+                    if (m_variableJumpHeight)
                     {
                         //Apply upward multiplier if player is rising and holding jump
                         if (m_pressingJump && m_currentlyJumping)
@@ -264,7 +268,7 @@ namespace Player
                 m_currentlyJumping = true;
             }
 
-            if (jumpBuffer == 0)
+            if (m_jumpBuffer == 0)
             {
                 //If we don't have a jump buffer, then turn off desiredJump immediately after hitting jumping
                 m_desiredJump = false;

@@ -28,6 +28,7 @@ namespace GameScenario
         private PlayerMovement m_playerMovement;
         private PlayerJump m_playerJump;
         private PlayerAttack m_playerAttack;
+        private PlayerRoll m_playerRoll;
         private Camera m_camera;
         private Volume m_globalVolume;
 
@@ -68,6 +69,7 @@ namespace GameScenario
             m_playerMovement = l_playerGO.GetComponent<PlayerMovement>();
             m_playerJump = l_playerGO.GetComponent<PlayerJump>();
             m_playerAttack = l_playerGO.GetComponent<PlayerAttack>();
+            m_playerRoll = l_playerGO.GetComponent<PlayerRoll>();
             m_camera = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
             m_globalVolume = GameObject.FindWithTag("GlobalVolume").GetComponent<Volume>();
 
@@ -100,31 +102,22 @@ namespace GameScenario
 
                 m_input.actions["Jump"].started += m_playerJump.OnJump;
                 m_input.actions["Jump"].canceled += m_playerJump.OnJump;
-                
-                // m_input.actions["Restart"].performed += (ctx) => ResurrectPlayer();
-                m_input.actions["Interact"].started += (ctx) =>
+
+                m_input.actions["Special"].started += m_playerRoll.OnRoll;
+                m_input.actions["Special"].canceled += m_playerRoll.OnRoll;
+
+                m_input.actions["Interact"].started += (p_ctx) =>
                 {
                     switch (m_state)
                     {
                         case GameState.PLAYING:
-                            m_playerAttack.OnStrike(ctx);
+                            m_playerAttack.OnStrike(p_ctx);
                             break;
                         case GameState.DIALOG:
                             m_dialogDirector.ForwardDialog();
                             break;
                     }
                 };
-
-                /*m_input.actions["VerticalMove"].performed += (ctx) =>
-                {
-                    switch (m_state)
-                    {
-                        case GameState.DIALOG:
-                            float l_direction = ctx.ReadValue<float>();
-                            m_dialogDirector.SelectedChoices = m_dialogDirector.SelectedChoices + Mathf.RoundToInt(l_direction);
-                            break;
-                    }
-                };*/
             }
         }
 
@@ -132,6 +125,12 @@ namespace GameScenario
         {
             m_input.actions["Move"].performed -= m_playerMovement.OnMovement;
             m_input.actions["Move"].canceled -= m_playerMovement.OnMovement;
+
+            m_input.actions["Jump"].started -= m_playerJump.OnJump;
+            m_input.actions["Jump"].canceled -= m_playerJump.OnJump;
+
+            m_input.actions["Special"].started -= m_playerRoll.OnRoll;
+            m_input.actions["Special"].canceled -= m_playerRoll.OnRoll;
         }
 
         private void Update()

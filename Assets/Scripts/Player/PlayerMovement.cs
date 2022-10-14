@@ -17,6 +17,8 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D m_body2D;
     private PlayerGround m_groundChecker;
     private PlayerAttack m_attack;
+    private PlayerRoll m_roll;
+    private PlayerMoveLimit m_moveLimit;
 
     [Header("Movement Stats")]
     [SerializeField, Range(0f, 20f)][Tooltip("Maximum movement speed")] public float m_maxSpeed = 10f;
@@ -50,21 +52,23 @@ public class PlayerMovement : MonoBehaviour
         m_body2D = GetComponent<Rigidbody2D>();
         m_groundChecker = GetComponent<PlayerGround>();
         m_attack = GetComponent<PlayerAttack>();
+        m_roll = GetComponent<PlayerRoll>();
+        m_moveLimit = GetComponent<PlayerMoveLimit>();
     }
 
     public void OnMovement(InputAction.CallbackContext p_context)
     {
         //This is called when you input a direction on a valid input type, such as arrow keys or analogue stick
         //The value will read -1 when pressing left, 0 when idle, and 1 when pressing right.
-        
         m_directionX = p_context.ReadValue<float>();
     }
 
     private void Update()
     {
+        bool l_canMove = m_moveLimit.CanDo(PlayerMoveLimit.Actions.Move);
         //Used to flip the character's sprite when she changes direction
         //Also tells us that we are currently pressing a direction button
-        if (m_directionX != 0 && !m_attack.Attacking)
+        if (m_directionX != 0 && l_canMove)
         {
             transform.localScale = new Vector3(m_directionX > 0 ? 1 : -1, 1, 1);
             m_pressingKey = true;
@@ -76,9 +80,15 @@ public class PlayerMovement : MonoBehaviour
 
         //Calculate's the character's desired velocity - which is the direction you are facing, multiplied by the character's maximum speed
         //Friction is not used in this game
-        m_desiredVelocity = m_attack.Attacking ? 
-            Vector2.zero : 
-            new Vector2(m_directionX, 0f) * Mathf.Max(m_maxSpeed - m_friction, 0f);
+        if (l_canMove)
+            m_desiredVelocity = new Vector2(m_directionX, 0f) *
+                                Mathf.Max(m_maxSpeed - m_friction, 0f);
+        else m_desiredVelocity = Vector2.zero;
+        
+        if (m_roll.Rolling)
+            m_desiredVelocity = new Vector2(m_roll.Speed * Mathf.Sign(transform.localScale.x), 0f) *
+                                Mathf.Max(m_maxSpeed - m_friction, 0f);
+        
     }
 
     private void FixedUpdate()

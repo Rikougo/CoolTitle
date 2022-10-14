@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Editor.Inspector
+namespace Inspector
 {
      public class LayerAttribute : PropertyAttribute
      {}
