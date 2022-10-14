@@ -1,15 +1,25 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class ParallaxItem : MonoBehaviour
+namespace Terrain
 {
-    public Transform m_camera;
-    public float relativeMoveX = .3f;
-    public float relativeMoveY = .1f;
-
-    void Update()
+    public class ParallaxItem : MonoBehaviour
     {
-        transform.position = new Vector2((m_camera.position.x * relativeMoveX) * 0.2f, transform.position.y);
+        public Transform m_camera;
+        public float relativeMove = .3f;
+
+        private Vector3 m_initialPosition;
+        private Vector3 m_initialCamPosition;
+
+        private void Awake()
+        {
+            m_initialPosition = transform.position;
+            m_initialCamPosition = m_camera.position;
+        }
+
+        void Update()
+        {
+            Vector3 l_delta = m_initialCamPosition - m_camera.position;
+            transform.position = new Vector3(m_initialPosition.x + l_delta.x * relativeMove, m_initialPosition.y, m_initialPosition.z);
+        }
     }
 }
