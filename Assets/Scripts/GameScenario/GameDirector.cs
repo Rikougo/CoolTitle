@@ -22,22 +22,34 @@ namespace GameScenario
             PAUSE
         }
 
+        public static GameDirector Instance { get; private set; }
+
+        #region INTERNAL_VAR
+
         private PlayerInput m_input;
         private DialogDirector m_dialogDirector;
-
-        private PlayerMovement m_playerMovement;
-        private PlayerJump m_playerJump;
-        private PlayerAttack m_playerAttack;
-        private PlayerRoll m_playerRoll;
-        private Camera m_camera;
-        private Volume m_globalVolume;
-
         private Dictionary<int, TimerHolder> m_timers;
         private bool m_started;
 
+        #endregion
+
+        #region EXTERNAL_REF
+
+        private PlayerEntity m_playerEntity;
+        private CharacterMovement m_characterMovement;
+        private CharacterJump m_characterJump;
+        private PlayerAttack m_playerAttack;
+        private CharacterRoll m_characterRoll;
+        
+        private Volume m_globalVolume;
+        private CinemachineBrain m_mainCamera;
+
+        #endregion
+
+        [Header("Assets")] 
         public VolumeProfile defaultVolume;
         public VolumeProfile deathVolume;
-        public CinemachineVirtualCamera defaultCameraBrain;
+        public VolumeProfile dialogVolume;
 
         private GameState m_state;
 
@@ -48,7 +60,7 @@ namespace GameScenario
             {
                 GameState l_oldState = m_state;
                 m_state = value;
-                OnGameStateChange?.Invoke(m_state, l_oldState);
+                GameStateChanged(l_oldState);
             }
         }
 
@@ -56,6 +68,14 @@ namespace GameScenario
 
         private void Awake()
         {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
+
             m_timers = new Dictionary<int, TimerHolder>();
             m_input = GetComponent<PlayerInput>();
             m_dialogDirector = GetComponent<DialogDirector>();
@@ -65,15 +85,9 @@ namespace GameScenario
 
         private void Start()
         {
-            GameObject l_playerGO = GameObject.FindWithTag("Player");
-            m_playerMovement = l_playerGO.GetComponent<PlayerMovement>();
-            m_playerJump = l_playerGO.GetComponent<PlayerJump>();
-            m_playerAttack = l_playerGO.GetComponent<PlayerAttack>();
-            m_playerRoll = l_playerGO.GetComponent<PlayerRoll>();
-            m_camera = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
-            m_globalVolume = GameObject.FindWithTag("GlobalVolume").GetComponent<Volume>();
-
-            if (m_playerMovement is null)
+            GameObject l_playerGo = GameObject.FindWithTag("Player");
+            
+            if (l_playerGo == null)
             {
                 Debug.LogError("Couldn't find Player component in Scene.");
 #if UNITY_EDITOR
@@ -82,6 +96,15 @@ namespace GameScenario
                 Application.Quit();
 #endif
             }
+            
+            m_characterMovement = l_playerGo.GetComponent<CharacterMovement>();
+            m_characterJump = l_playerGo.GetComponent<CharacterJump>();
+            m_playerAttack = l_playerGo.GetComponent<PlayerAttack>();
+            m_characterRoll = l_playerGo.GetComponent<CharacterRoll>();
+            m_playerEntity = l_playerGo.GetComponent<PlayerEntity>();
+            
+            m_globalVolume = GameObject.FindWithTag("GlobalVolume").GetComponent<Volume>();
+            m_mainCamera = GameObject.FindWithTag("MainCamera").GetComponent<CinemachineBrain>();
 
             m_started = true;
 
@@ -93,44 +116,51 @@ namespace GameScenario
             OnStartOrEnable();
         }
 
+        /// <summary>
+        /// Called on Start and on OnEnable but only proceed if Start event already got called previously
+        /// </summary>
         private void OnStartOrEnable()
         {
             if (m_started)
             {
-                m_input.actions["Move"].performed += m_playerMovement.OnMovement;
-                m_input.actions["Move"].canceled += m_playerMovement.OnMovement;
+                m_input.actions["Move"].performed += m_characterMovement.OnMovement;
+                m_input.actions["Move"].canceled += m_characterMovement.OnMovement;
 
-                m_input.actions["Jump"].started += m_playerJump.OnJump;
-                m_input.actions["Jump"].canceled += m_playerJump.OnJump;
+                m_input.actions["Jump"].started += m_characterJump.OnJump;
+                m_input.actions["Jump"].canceled += m_characterJump.OnJump;
 
-                m_input.actions["Special"].started += m_playerRoll.OnRoll;
-                m_input.actions["Special"].canceled += m_playerRoll.OnRoll;
+                m_input.actions["Special"].started += m_characterRoll.OnRoll;
+                m_input.actions["Special"].canceled += m_characterRoll.OnRoll;
 
-                m_input.actions["Interact"].started += (p_ctx) =>
-                {
-                    switch (m_state)
-                    {
-                        case GameState.PLAYING:
-                            m_playerAttack.OnStrike(p_ctx);
-                            break;
-                        case GameState.DIALOG:
-                            m_dialogDirector.ForwardDialog();
-                            break;
-                    }
-                };
+                m_input.actions["Interact"].started += OnInteract;
             }
         }
 
         private void OnDisable()
         {
-            m_input.actions["Move"].performed -= m_playerMovement.OnMovement;
-            m_input.actions["Move"].canceled -= m_playerMovement.OnMovement;
+            m_input.actions["Move"].performed -= m_characterMovement.OnMovement;
+            m_input.actions["Move"].canceled -= m_characterMovement.OnMovement;
 
-            m_input.actions["Jump"].started -= m_playerJump.OnJump;
-            m_input.actions["Jump"].canceled -= m_playerJump.OnJump;
+            m_input.actions["Jump"].started -= m_characterJump.OnJump;
+            m_input.actions["Jump"].canceled -= m_characterJump.OnJump;
 
-            m_input.actions["Special"].started -= m_playerRoll.OnRoll;
-            m_input.actions["Special"].canceled -= m_playerRoll.OnRoll;
+            m_input.actions["Special"].started -= m_characterRoll.OnRoll;
+            m_input.actions["Special"].canceled -= m_characterRoll.OnRoll;
+
+            m_input.actions["Interact"].started -= OnInteract;
+        }
+
+        private void OnInteract(InputAction.CallbackContext p_ctx)
+        {
+            switch (m_state)
+            {
+                case GameState.PLAYING:
+                    m_playerAttack.OnStrike(p_ctx);
+                    break;
+                case GameState.DIALOG:
+                    m_dialogDirector.ForwardDialog();
+                    break;
+            }
         }
 
         private void Update()
@@ -144,34 +174,51 @@ namespace GameScenario
             m_globalVolume.profile = deathVolume;
 
             const float targetAmplitudeGain = 5.0f;
-            defaultCameraBrain.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>().m_AmplitudeGain =
-                targetAmplitudeGain;
+            CinemachineVirtualCamera l_currentVirtualCam = m_mainCamera.ActiveVirtualCamera as CinemachineVirtualCamera;
 
-            TimerHolder l_shakeTimer = new TimerHolder() { Duration = 0.7f };
-            l_shakeTimer.OnUpdate += (TimerHolder p_timer, float p_deltaTime) =>
+            if (l_currentVirtualCam != null)
             {
-                float l_invertProgress = 1.0f - p_timer.Progress;
-                float l_coef = Math.Abs(l_invertProgress - 1.0f) < 0.001f
-                    ? 1.0f
-                    : 1 - Mathf.Pow(2.0f, -10.0f * l_invertProgress);
-                defaultCameraBrain.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>().m_AmplitudeGain =
-                    targetAmplitudeGain * l_coef;
-            };
-            l_shakeTimer.OnEnd += (TimerHolder p_timer) =>
-            {
-                defaultCameraBrain.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>().m_AmplitudeGain = 0.0f;
-                OnPlayerDeath?.Invoke();
-            };
+                CinemachineBasicMultiChannelPerlin l_noiseComp =
+                    l_currentVirtualCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
 
-            this.AddTimer(l_shakeTimer);
+                if (l_noiseComp != null)
+                {
+                    l_noiseComp.m_AmplitudeGain = targetAmplitudeGain;
+
+                    this.AddTimer(
+                        0.7f,
+                        (p_timer, _) =>
+                        {
+                            float l_invertProgress = 1.0f - p_timer.Progress;
+                            float l_progress = Math.Abs(l_invertProgress - 1.0f) < 0.001f
+                                ? 1.0f
+                                : 1 - Mathf.Pow(2.0f, -10.0f * l_invertProgress);
+                            l_noiseComp.m_AmplitudeGain = targetAmplitudeGain * l_progress;
+                        },
+                        (_) =>
+                        {
+                            l_noiseComp.m_AmplitudeGain = 0.0f;
+                            OnPlayerDeath?.Invoke();
+                        });
+                }
+            }
         }
 
-        public void ResurrectPlayer()
+        private void GameStateChanged(GameState p_oldState)
         {
-            m_globalVolume.profile = defaultVolume;
-            // m_player.Resurrect();
-        }
+            OnGameStateChange?.Invoke(m_state, p_oldState);
 
+            switch (m_state)
+            {
+                case GameState.DIALOG:
+                    m_globalVolume.sharedProfile = dialogVolume;
+                    break;
+                default:
+                    m_globalVolume.sharedProfile = defaultVolume;
+                    break;
+            };
+        }
+        
         #region TIMERS
 
         private void TickTimers()

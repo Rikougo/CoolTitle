@@ -3,7 +3,7 @@ using UnityEngine.Events;
 
 namespace Enemies
 {
-    public class Enemy : MonoBehaviour
+    public class EnemyComponent : MonoBehaviour
     {
         private SpriteRenderer m_spriteRenderer;
         
@@ -20,6 +20,11 @@ namespace Enemies
             m_spriteRenderer = GetComponent<SpriteRenderer>();
 
             m_currentHealth = maxHealth;
+        }
+
+        private void Start()
+        {
+            OnHealthChange?.Invoke(m_currentHealth / maxHealth);
         }
         
         public void TakeDamage()

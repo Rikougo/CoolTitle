@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Player
 {
-    public class PlayerMoveLimit : MonoBehaviour
+    public class CharacterMoveLimit : MonoBehaviour
     {
         [Flags]
         public enum Actions

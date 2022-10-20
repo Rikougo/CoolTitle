@@ -3,14 +3,14 @@ using UnityEngine.InputSystem;
 
 namespace Player
 {
-    public class PlayerJump : MonoBehaviour
+    public class CharacterJump : MonoBehaviour
     {
         [Header("Components")]
         private Rigidbody2D m_body2D;
         private Animator m_animator;
 
-        private PlayerGround m_ground;
-        private PlayerMoveLimit m_moveLimit;
+        private CharacterGround m_ground;
+        private CharacterMoveLimit m_moveLimit;
         private Vector2 m_velocity;
 
         [Header("Jumping Stats")] [SerializeField, Range(2f, 5.5f)] [Tooltip("Maximum jump height")]
@@ -71,8 +71,8 @@ namespace Player
             //Find the character's Rigidbody and ground detection and juice scripts
 
             m_body2D = GetComponent<Rigidbody2D>();
-            m_ground = GetComponent<PlayerGround>();
-            m_moveLimit = GetComponent<PlayerMoveLimit>();
+            m_ground = GetComponent<CharacterGround>();
+            m_moveLimit = GetComponent<CharacterMoveLimit>();
             m_animator = GetComponentInChildren<Animator>();
             // juice = GetComponentInChildren<characterJuice>();
             m_defaultGravityScale = 1f;
@@ -80,7 +80,7 @@ namespace Player
 
         public void OnJump(InputAction.CallbackContext context)
         {
-            if (m_moveLimit.CanDo(PlayerMoveLimit.Actions.Jump))
+            if (m_moveLimit.CanDo(CharacterMoveLimit.Actions.Jump))
             {
                 //This function is called when one of the jump buttons (like space or the A button) is pressed.
 

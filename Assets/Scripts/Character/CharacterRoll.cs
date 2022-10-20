@@ -5,10 +5,10 @@ using UnityEngine.InputSystem;
 
 namespace Player
 {
-    public class PlayerRoll : MonoBehaviour
+    public class CharacterRoll : MonoBehaviour
     {
-        private PlayerGround m_playerGround;
-        private PlayerMoveLimit m_moveLimit;
+        private CharacterGround m_characterGround;
+        private CharacterMoveLimit m_moveLimit;
         private Animator m_animator;
 
         [Header("Roll configuration")] 
@@ -25,8 +25,8 @@ namespace Player
 
         private void Awake()
         {
-            m_playerGround = GetComponent<PlayerGround>();
-            m_moveLimit = GetComponent<PlayerMoveLimit>();
+            m_characterGround = GetComponent<CharacterGround>();
+            m_moveLimit = GetComponent<CharacterMoveLimit>();
             m_animator = GetComponent<Animator>();
 
             m_initialLayer = gameObject.layer;
@@ -35,21 +35,24 @@ namespace Player
         
         public void OnRoll(InputAction.CallbackContext p_ctx)
         {
-            if (p_ctx.started && m_playerGround.OnGround && m_moveLimit.CanDo(PlayerMoveLimit.Actions.Roll))
+            if (p_ctx.started && m_characterGround.OnGround && m_moveLimit.CanDo(CharacterMoveLimit.Actions.Roll))
             {
-                m_rolling = true;
-                m_moveLimit.LockActions(PlayerMoveLimit.Actions.All);
+                m_moveLimit.LockActions(CharacterMoveLimit.Actions.All);
 
                 gameObject.layer = m_noColliderLayer;
                 
                 m_animator.SetTrigger(RollAnimID);
+                m_rolling = true;
             }
         }
 
+        /// <summary>
+        /// Called from Animation event
+        /// </summary>
         public void AnimationRollEnd()
         {
             m_rolling = false;
-            m_moveLimit.UnlockActions(PlayerMoveLimit.Actions.All);
+            m_moveLimit.UnlockActions(CharacterMoveLimit.Actions.All);
             gameObject.layer = m_initialLayer;
         }
     }

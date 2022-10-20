@@ -11,7 +11,6 @@ namespace GameScenario
         private DialogDirector m_dialogDirector;
 
         public DialogContainer startDialogItem;
-        public DialogContainer deathDialogItem;
 
         public void Start()
         {

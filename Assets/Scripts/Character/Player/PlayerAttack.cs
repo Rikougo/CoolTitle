@@ -7,7 +7,7 @@ namespace Player
     public class PlayerAttack : MonoBehaviour
     {
         private Animator m_animator;
-        private PlayerMoveLimit m_moveLimit;
+        private CharacterMoveLimit m_moveLimit;
 
         private bool m_attacking = false;
         private bool m_canAttack = true;
@@ -32,7 +32,7 @@ namespace Player
         private void Awake()
         {
             m_animator = GetComponentInChildren<Animator>();
-            m_moveLimit = GetComponent<PlayerMoveLimit>();
+            m_moveLimit = GetComponent<CharacterMoveLimit>();
         }
 
         private void Start()
@@ -44,7 +44,7 @@ namespace Player
         {
             if (p_ctx.started)
             {
-                if (m_canAttack && m_moveLimit.CanDo(PlayerMoveLimit.Actions.Attack))
+                if (m_canAttack && m_moveLimit.CanDo(CharacterMoveLimit.Actions.Attack))
                 {
                     DoAttack();
                 }
@@ -65,7 +65,7 @@ namespace Player
                 {
                     DisableColliders();
                     m_attacking = false;
-                    m_moveLimit.UnlockActions(PlayerMoveLimit.Actions.All);
+                    m_moveLimit.UnlockActions(CharacterMoveLimit.Actions.All);
                 }
             }
 
@@ -78,7 +78,7 @@ namespace Player
                 m_attackBufferTimer = 0.0f;
             }
 
-            if (m_moveLimit.CanDo(PlayerMoveLimit.Actions.Attack) && m_desiredAttack)
+            if (m_moveLimit.CanDo(CharacterMoveLimit.Actions.Attack) && m_desiredAttack)
             {
                 m_desiredAttack = false;
                 DoAttack();
@@ -94,7 +94,7 @@ namespace Player
             m_animator.SetInteger(ComboAnimID, m_currentCombo);
             m_animator.SetTrigger(StrikeAnimID);
 
-            m_moveLimit.LockActions(PlayerMoveLimit.Actions.All ^ PlayerMoveLimit.Actions.Attack);
+            m_moveLimit.LockActions(CharacterMoveLimit.Actions.All ^ CharacterMoveLimit.Actions.Attack);
             DisableColliders();
             strikeColliders[m_currentCombo].gameObject.SetActive(true);
 

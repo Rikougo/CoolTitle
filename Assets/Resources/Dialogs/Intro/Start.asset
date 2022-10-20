@@ -17,31 +17,30 @@ MonoBehaviour:
     PortName: Next
     TargetNodeGUID: 90269f1d-2733-4161-8692-095a2b231ee3
   - BaseNodeGUID: 90269f1d-2733-4161-8692-095a2b231ee3
-    PortName: I have no time
-    TargetNodeGUID: dc7a8069-a782-48c8-a104-6d03bc77b3d3
-  - BaseNodeGUID: 90269f1d-2733-4161-8692-095a2b231ee3
     PortName: Where am I ?
     TargetNodeGUID: 161b94e9-dd35-421a-9a73-9d63b9559c96
-  - BaseNodeGUID: dc7a8069-a782-48c8-a104-6d03bc77b3d3
-    PortName: Option 1
-    TargetNodeGUID: 6049d450-f91d-4c86-9174-35fb93c25fd0
+  - BaseNodeGUID: 161b94e9-dd35-421a-9a73-9d63b9559c96
+    PortName: _
+    TargetNodeGUID: 234e8ba9-7cf0-451c-b4ed-dc7182a0b977
+  - BaseNodeGUID: 234e8ba9-7cf0-451c-b4ed-dc7182a0b977
+    PortName: _
+    TargetNodeGUID: b879c10d-ddba-4b63-9662-dd6e906b515b
   DialogueNodeData:
   - EntryPoint: 1
     NodeGUID: 90269f1d-2733-4161-8692-095a2b231ee3
-    DialogueText: Greetings pal.
-    Position: {x: 244, y: 200}
+    DialogueText: Greetings, felon
+    Position: {x: 185, y: 200}
   - EntryPoint: 0
     NodeGUID: 161b94e9-dd35-421a-9a73-9d63b9559c96
-    DialogueText: You will find out soon enough, it seems that you have something
-      to do.
-    Position: {x: 506, y: 286}
+    DialogueText: Oh... so you don't remember ?
+    Position: {x: 393, y: 200}
   - EntryPoint: 0
-    NodeGUID: dc7a8069-a782-48c8-a104-6d03bc77b3d3
-    DialogueText: ...
-    Position: {x: 521, y: 126}
+    NodeGUID: 234e8ba9-7cf0-451c-b4ed-dc7182a0b977
+    DialogueText: It is a long story, and I don't will to waste my time
+    Position: {x: 585, y: 200}
   - EntryPoint: 0
-    NodeGUID: 6049d450-f91d-4c86-9174-35fb93c25fd0
-    DialogueText: Dialogue Node
-    Position: {x: 785, y: 126}
+    NodeGUID: b879c10d-ddba-4b63-9662-dd6e906b515b
+    DialogueText: First you have to prove us you are worthy, felon
+    Position: {x: 884, y: 200}
   ExposedProperties: []
   CommentBlockData: []

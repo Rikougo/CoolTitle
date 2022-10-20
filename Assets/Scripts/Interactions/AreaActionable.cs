@@ -6,14 +6,14 @@ namespace Interactions
 {
     public class AreaActionable : MonoBehaviour
     {
-        public UnityEvent<PlayerMovement> ExecuteAction;
+        public UnityEvent<CharacterMovement> ExecuteAction;
 
         public UnityAction OnPlayerEnter;
         public UnityAction OnPlayerExit;
 
-        public void Execute(PlayerMovement p_playerMovement)
+        public void Execute(CharacterMovement p_characterMovement)
         {
-            ExecuteAction?.Invoke(p_playerMovement);
+            ExecuteAction?.Invoke(p_characterMovement);
         }
 
         private void OnTriggerEnter2D(Collider2D p_collider2D)

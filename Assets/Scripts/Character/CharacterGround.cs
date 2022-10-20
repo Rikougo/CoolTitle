@@ -2,7 +2,7 @@
 
 namespace Player
 {
-    public class PlayerGround : MonoBehaviour
+    public class CharacterGround : MonoBehaviour
     {
         private bool m_onGround;
         

@@ -78,8 +78,9 @@ namespace Animations.Text
             }
         }
 
-        public void PlayAnimation()
+        public void PlayAnimation(float p_unitOffset = 1.0f)
         {
+            m_unitOffset = p_unitOffset;
             m_animateText = true;
             m_textGUI.ForceMeshUpdate();
             m_beforeAnimationVertices = m_textGUI.mesh.vertices;

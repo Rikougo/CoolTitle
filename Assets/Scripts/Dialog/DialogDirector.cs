@@ -148,7 +148,8 @@ namespace Dialog
                     m_dialogText.text = m_currentNode.DialogueText;
                     m_currentTimer = -1;
                     
-                    if (m_currentChoices.Count > 1) ShowChoices();
+                    if (m_currentChoices.Count > 1 || (m_currentChoices.Count == 1 && m_currentChoices[0].PortName != "_")) 
+                        ShowChoices();
                 });
         }
 
@@ -170,7 +171,7 @@ namespace Dialog
 
                 if (m_choicesCursor == l_index)
                 {
-                    l_choiceText.gameObject.AddComponent<WavingText>().PlayAnimation();
+                    l_choiceText.gameObject.AddComponent<WavingText>().PlayAnimation(0.5f);
                 }
 
                 int l_captureIndex = l_index;

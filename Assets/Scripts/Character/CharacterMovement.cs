@@ -11,14 +11,13 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class PlayerMovement : MonoBehaviour
+public class CharacterMovement : MonoBehaviour
 {
     [Header("Components")]
     private Rigidbody2D m_body2D;
-    private PlayerGround m_groundChecker;
-    private PlayerAttack m_attack;
-    private PlayerRoll m_roll;
-    private PlayerMoveLimit m_moveLimit;
+    private CharacterGround m_groundChecker;
+    private CharacterRoll m_roll;
+    private CharacterMoveLimit m_moveLimit;
 
     [Header("Movement Stats")]
     [SerializeField, Range(0f, 20f)][Tooltip("Maximum movement speed")] public float m_maxSpeed = 10f;
@@ -31,7 +30,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField][Tooltip("Friction to apply against movement on stick")] private float m_friction;
 
     [Header("Options")]
-    [Tooltip("When false, the charcter will skip acceleration and deceleration and instantly move and stop")] public bool m_useAcceleration;
+    [Tooltip("When false, the character will skip acceleration and deceleration and instantly move and stop")] public bool m_useAcceleration;
 
     [Header("Calculations")]
     public float m_directionX;
@@ -50,10 +49,9 @@ public class PlayerMovement : MonoBehaviour
     {
         //Find the character's Rigidbody and ground detection script
         m_body2D = GetComponent<Rigidbody2D>();
-        m_groundChecker = GetComponent<PlayerGround>();
-        m_attack = GetComponent<PlayerAttack>();
-        m_roll = GetComponent<PlayerRoll>();
-        m_moveLimit = GetComponent<PlayerMoveLimit>();
+        m_groundChecker = GetComponent<CharacterGround>();
+        m_roll = GetComponent<CharacterRoll>();
+        m_moveLimit = GetComponent<CharacterMoveLimit>();
     }
 
     public void OnMovement(InputAction.CallbackContext p_context)
@@ -63,9 +61,14 @@ public class PlayerMovement : MonoBehaviour
         m_directionX = p_context.ReadValue<float>();
     }
 
+    public void SetXDirection(float p_value)
+    {
+        m_directionX = Mathf.Clamp(p_value, -1.0f, 1.0f);
+    }
+
     private void Update()
     {
-        bool l_canMove = m_moveLimit.CanDo(PlayerMoveLimit.Actions.Move);
+        bool l_canMove = m_moveLimit.CanDo(CharacterMoveLimit.Actions.Move);
         //Used to flip the character's sprite when she changes direction
         //Also tells us that we are currently pressing a direction button
         if (m_directionX != 0 && l_canMove)
@@ -85,7 +88,7 @@ public class PlayerMovement : MonoBehaviour
                                 Mathf.Max(m_maxSpeed - m_friction, 0f);
         else m_desiredVelocity = Vector2.zero;
         
-        if (m_roll.Rolling)
+        if (m_roll is not null && m_roll.Rolling)
             m_desiredVelocity = new Vector2(m_roll.Speed * Mathf.Sign(transform.localScale.x), 0f) *
                                 Mathf.Max(m_maxSpeed - m_friction, 0f);
         

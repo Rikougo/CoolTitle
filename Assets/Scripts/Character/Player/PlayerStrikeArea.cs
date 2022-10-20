@@ -10,7 +10,7 @@ namespace Player
         {
             if (!p_collider.CompareTag("Enemy")) return;
 
-            Enemy l_enemy = p_collider.GetComponent<Enemy>();
+            EnemyComponent l_enemy = p_collider.GetComponent<EnemyComponent>();
             if (l_enemy == null)
             {
                 Debug.Log($"Error: {p_collider.gameObject.GetInstanceID()} game object with Enemy tag has no Enemy component.");

@@ -2,23 +2,34 @@ using UnityEngine;
 
 namespace Terrain
 {
+    [ExecuteInEditMode]
     public class ParallaxItem : MonoBehaviour
     {
-        public Transform m_camera;
+        [Header("Layer settings")]
         public float relativeMove = .3f;
+        [SerializeField] private Vector3 m_initialPosition;
 
-        private Vector3 m_initialPosition;
-        private Vector3 m_initialCamPosition;
+        private Transform m_camera;
 
-        private void Awake()
+        private void Start()
         {
-            m_initialPosition = transform.position;
-            m_initialCamPosition = m_camera.position;
+            m_camera = GameObject.FindWithTag("MainCamera").transform;
         }
 
-        void Update()
+        private void Update()
         {
-            Vector3 l_delta = m_initialCamPosition - m_camera.position;
+            if (!UnityEditor.EditorApplication.isPlaying) UpdatePosition();
+        }
+
+        private void FixedUpdate()
+        {
+            if (UnityEditor.EditorApplication.isPlaying) UpdatePosition();
+        }
+        
+        void UpdatePosition()
+        {
+            
+            Vector3 l_delta = m_camera.position;
             transform.position = new Vector3(m_initialPosition.x + l_delta.x * relativeMove, m_initialPosition.y, m_initialPosition.z);
         }
     }
