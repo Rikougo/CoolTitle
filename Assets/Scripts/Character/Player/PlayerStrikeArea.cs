@@ -1,8 +1,7 @@
-using System;
-using Enemies;
+using Character.Enemies;
 using UnityEngine;
 
-namespace Player
+namespace Character.Player
 {
     public class PlayerStrikeArea : MonoBehaviour
     {

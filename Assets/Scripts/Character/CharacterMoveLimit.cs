@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Player
+namespace Character
 {
     public class CharacterMoveLimit : MonoBehaviour
     {

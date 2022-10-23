@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Player
+namespace Character.Player
 {
     public class PlayerAttack : MonoBehaviour
     {

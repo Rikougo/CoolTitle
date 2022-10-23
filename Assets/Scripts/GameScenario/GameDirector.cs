@@ -2,10 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Character;
+using Character.Player;
 using Cinemachine;
 using Dialog;
 using GameScenario.Utils;
-using Player;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
@@ -35,19 +36,20 @@ namespace GameScenario
 
         #region EXTERNAL_REF
 
-        private PlayerEntity m_playerEntity;
+        #region PLAYER_REF
+        private PlayerBrain m_playerBrain;
         private CharacterMovement m_characterMovement;
         private CharacterJump m_characterJump;
         private PlayerAttack m_playerAttack;
         private CharacterRoll m_characterRoll;
-        
+        #endregion
+
         private Volume m_globalVolume;
         private CinemachineBrain m_mainCamera;
 
         #endregion
 
-        [Header("Assets")] 
-        public VolumeProfile defaultVolume;
+        [Header("Assets")] public VolumeProfile defaultVolume;
         public VolumeProfile deathVolume;
         public VolumeProfile dialogVolume;
 
@@ -86,7 +88,7 @@ namespace GameScenario
         private void Start()
         {
             GameObject l_playerGo = GameObject.FindWithTag("Player");
-            
+
             if (l_playerGo == null)
             {
                 Debug.LogError("Couldn't find Player component in Scene.");
@@ -96,13 +98,13 @@ namespace GameScenario
                 Application.Quit();
 #endif
             }
-            
-            m_characterMovement = l_playerGo.GetComponent<CharacterMovement>();
-            m_characterJump = l_playerGo.GetComponent<CharacterJump>();
+
+            m_playerBrain = l_playerGo.GetComponent<PlayerBrain>();
             m_playerAttack = l_playerGo.GetComponent<PlayerAttack>();
+            m_characterJump = l_playerGo.GetComponent<CharacterJump>();
             m_characterRoll = l_playerGo.GetComponent<CharacterRoll>();
-            m_playerEntity = l_playerGo.GetComponent<PlayerEntity>();
-            
+            m_characterMovement = l_playerGo.GetComponent<CharacterMovement>();
+
             m_globalVolume = GameObject.FindWithTag("GlobalVolume").GetComponent<Volume>();
             m_mainCamera = GameObject.FindWithTag("MainCamera").GetComponent<CinemachineBrain>();
 
@@ -123,42 +125,72 @@ namespace GameScenario
         {
             if (m_started)
             {
-                m_input.actions["Move"].performed += m_characterMovement.OnMovement;
-                m_input.actions["Move"].canceled += m_characterMovement.OnMovement;
+                m_input.actions["Move"].performed += OnMoveAction;
+                m_input.actions["Move"].canceled += OnMoveAction;
 
-                m_input.actions["Jump"].started += m_characterJump.OnJump;
-                m_input.actions["Jump"].canceled += m_characterJump.OnJump;
+                m_input.actions["Jump"].started += OnJumpAction;
+                m_input.actions["Jump"].canceled += OnJumpAction;
 
-                m_input.actions["Special"].started += m_characterRoll.OnRoll;
-                m_input.actions["Special"].canceled += m_characterRoll.OnRoll;
+                m_input.actions["Special"].started += OnRollAction;
+                m_input.actions["Special"].canceled += OnRollAction;
 
-                m_input.actions["Interact"].started += OnInteract;
+                m_input.actions["Interact"].started += OnInteractAction;
             }
         }
 
         private void OnDisable()
         {
-            m_input.actions["Move"].performed -= m_characterMovement.OnMovement;
-            m_input.actions["Move"].canceled -= m_characterMovement.OnMovement;
+            m_input.actions["Move"].performed -= OnMoveAction;
+            m_input.actions["Move"].canceled -= OnMoveAction;
 
-            m_input.actions["Jump"].started -= m_characterJump.OnJump;
-            m_input.actions["Jump"].canceled -= m_characterJump.OnJump;
+            m_input.actions["Jump"].started -= OnJumpAction;
+            m_input.actions["Jump"].canceled -= OnJumpAction;
 
-            m_input.actions["Special"].started -= m_characterRoll.OnRoll;
-            m_input.actions["Special"].canceled -= m_characterRoll.OnRoll;
+            m_input.actions["Special"].started -= OnRollAction;
+            m_input.actions["Special"].canceled -= OnRollAction;
 
-            m_input.actions["Interact"].started -= OnInteract;
+            m_input.actions["Interact"].started -= OnInteractAction;
         }
 
-        private void OnInteract(InputAction.CallbackContext p_ctx)
+        private void OnMoveAction(InputAction.CallbackContext p_ctx)
+        {
+            switch (m_state)
+            {
+                case GameState.PLAYING:
+                    m_characterMovement.OnMovement(p_ctx);
+                    break;
+            }
+        }
+
+        private void OnJumpAction(InputAction.CallbackContext p_ctx)
+        {
+            switch (m_state)
+            {
+                case GameState.PLAYING:
+                    m_characterJump.OnJump(p_ctx);
+                    break;
+                case GameState.DIALOG:
+                    if (p_ctx.started) m_dialogDirector.ForwardDialog();
+                    break;
+            }
+        }
+
+        private void OnInteractAction(InputAction.CallbackContext p_ctx)
         {
             switch (m_state)
             {
                 case GameState.PLAYING:
                     m_playerAttack.OnStrike(p_ctx);
                     break;
-                case GameState.DIALOG:
-                    m_dialogDirector.ForwardDialog();
+            }
+        }
+
+        private void OnRollAction(InputAction.CallbackContext p_ctx)
+        {
+            switch (m_state)
+            {
+                case GameState.PLAYING:
+                    m_characterRoll.OnRoll(p_ctx);
                     break;
             }
         }
@@ -216,9 +248,11 @@ namespace GameScenario
                 default:
                     m_globalVolume.sharedProfile = defaultVolume;
                     break;
-            };
+            }
+
+            ;
         }
-        
+
         #region TIMERS
 
         private void TickTimers()

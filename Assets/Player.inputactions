@@ -163,7 +163,7 @@
                 {
                     "name": "",
                     "id": "71285f4a-3050-44bc-93e5-01820532aba6",
-                    "path": "<Gamepad>/buttonWest",
+                    "path": "<Gamepad>/rightShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -205,6 +205,17 @@
                     "isPartOfComposite": false
                 },
                 {
+                    "name": "",
+                    "id": "07d8d5aa-9190-40af-870c-6ab6a4d26079",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Special",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
                     "name": "1D Axis",
                     "id": "29edbc24-b555-4788-8016-acc52c0720be",
                     "path": "1DAxis",
@@ -230,6 +241,39 @@
                     "name": "positive",
                     "id": "081b4d41-b13c-4cb7-bfb2-2039d4f5945f",
                     "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "VerticalMove",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "1D Axis",
+                    "id": "6f5a4bd5-6285-4ee9-89ff-f07598125b77",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "VerticalMove",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "ba74bf52-6147-4027-bb70-326cba0e42c9",
+                    "path": "<Gamepad>/dpad/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "VerticalMove",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "db8c2c66-8052-4170-b84b-e2ccc65eb05d",
+                    "path": "<Gamepad>/dpad/up",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

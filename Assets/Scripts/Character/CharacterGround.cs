@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Player
+namespace Character
 {
     public class CharacterGround : MonoBehaviour
     {

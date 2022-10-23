@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Player
+namespace Character
 {
+    [RequireComponent(typeof(CharacterMoveLimit), typeof(CharacterGround))]
     public class CharacterJump : MonoBehaviour
     {
         [Header("Components")]
@@ -62,7 +63,6 @@ namespace Player
         
         private static readonly int JumpAnimID = Animator.StringToHash("jumpTrigger");
         private static readonly int GroundedAnimID = Animator.StringToHash("grounded");
-        private static readonly int HorizontalVelocityAnimID = Animator.StringToHash("horizontal_velocity");
         private static readonly int VerticalVelocityAnimID = Animator.StringToHash("vertical_velocity");
         private static readonly int Jumping = Animator.StringToHash("jumping");
 
@@ -140,7 +140,6 @@ namespace Player
                 m_coyoteTimeCounter = 0;
             }
             
-            m_animator.SetFloat(HorizontalVelocityAnimID, Mathf.Abs(m_body2D.velocity.x));
             m_animator.SetFloat(VerticalVelocityAnimID, m_body2D.velocity.y);
             m_animator.SetBool(Jumping, m_currentlyJumping);
         }

@@ -1,10 +1,10 @@
-﻿using System;
-using Inspector;
+﻿using Inspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Player
+namespace Character
 {
+    [RequireComponent(typeof(CharacterMoveLimit))]
     public class CharacterRoll : MonoBehaviour
     {
         private CharacterGround m_characterGround;
